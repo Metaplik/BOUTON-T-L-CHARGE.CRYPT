@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Calculatrice</title>
+  <meta name="theme-color" content="#000000" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Calculatrice" />
+  <link rel="apple-touch-icon" href="icon.png" />
+  <link rel="icon" href="icon.png" />
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: 100%; width: 100%;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #fff;
+    }
+    img.logo {
+      width: 120px; height: 120px;
+      border-radius: 24px;
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    p {
+      font-size: 14px;
+      opacity: 0.6;
+      margin-bottom: 40px;
+    }
+    #install-btn {
+      background: #4a9e1f;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 16px 40px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      display: none;
+    }
+    #ios-hint {
+      display: none;
+      text-align: center;
+      font-size: 14px;
+      opacity: 0.8;
+      padding: 0 30px;
+    }
+    #ios-hint .share-icon {
+      font-size: 24px;
+      display: block;
+      margin: 12px 0 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <img class="logo" src="icon.png" alt="Logo" />
+  <h1>Calculatrice</h1>
+  <p>Application mobile</p>
+
+  <button id="install-btn">⬇ Télécharger l'application</button>
+
+  <div id="ios-hint">
+    Appuyez sur
+    <span class="share-icon">⬆</span>
+    <strong>Partager</strong> puis <strong>"Sur l'écran d'accueil"</strong>
+  </div>
+
+  <script>
+    const installBtn = document.getElementById('install-btn');
+    const iosHint = document.getElementById('ios-hint');
+
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+
+    if (!isStandalone) {
+      if (isIOS) {
+        iosHint.style.display = 'block';
+      }
+    }
+
+    let deferredPrompt = null;
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'block';
+    });
+
+    installBtn.addEventListener("click", async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        if (outcome === "accepted") {
+          installBtn.style.display = 'none';
+        }
+      }
+    });
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+    }
+  </script>
+</body>
+</html>
